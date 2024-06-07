@@ -25,14 +25,16 @@ page = st.sidebar.selectbox("Select a page", ["Global Heatmap", "Country-wise He
 year_range = st.sidebar.slider('Select year range', int(data['Year'].min()), int(data['Year'].max()), (2000, 2010))
 heatmap_type = st.sidebar.radio('Select heatmap type', ['Yearly', 'Decadal'])
 
-def create_heatmap(data, index, columns, title):
+def create_heatmap(data, index, columns, title, zmin, zmax):
     heatmap_data = data.pivot_table(index=index, columns=columns, values='AverageTemperature', aggfunc='mean')
     fig = go.Figure(data=go.Heatmap(
         z=heatmap_data.values,
         x=heatmap_data.columns,
         y=heatmap_data.index,
         colorscale='RdBu',  # Change colorscale to RdBu for red to blue color theme
-        reversescale=True   # Reverse the colorscale to have high values as red and low values as blue
+        reversescale=True,  # Reverse the colorscale to have high values as red and low values as blue
+        zmin=zmin,          # Fixed minimum value for the colorscale
+        zmax=zmax           # Fixed maximum value for the colorscale
     ))
     fig.update_layout(
         title=title,
@@ -41,15 +43,19 @@ def create_heatmap(data, index, columns, title):
     )
     return fig
 
+# Determine the global min and max temperatures for consistent color scale
+global_min_temp = data['AverageTemperature'].min()
+global_max_temp = data['AverageTemperature'].max()
+
 # Visualization
 if page == "Global Heatmap":
     st.subheader('Global Temperature Heatmap')
     filtered_data = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1])]
     if heatmap_type == 'Yearly':
-        fig = create_heatmap(filtered_data, index='Month', columns='Year', title='Global Average Temperature Yearly Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Year', title='Global Average Temperature Yearly Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     else:
         filtered_data['Decade'] = (filtered_data['Year'] // 10) * 10
-        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title='Global Average Temperature Decadal Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title='Global Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     st.plotly_chart(fig)
 elif page == "Country-wise Heatmap":
     st.subheader('Country-wise Temperature Heatmap')
@@ -57,10 +63,10 @@ elif page == "Country-wise Heatmap":
     selected_country = st.sidebar.selectbox('Select a country', countries)
     filtered_data = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1]) & (data['Country'] == selected_country)]
     if heatmap_type == 'Yearly':
-        fig = create_heatmap(filtered_data, index='Month', columns='Year', title=f'{selected_country} Average Temperature Yearly Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Year', title=f'{selected_country} Average Temperature Yearly Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     else:
         filtered_data['Decade'] = (filtered_data['Year'] // 10) * 10
-        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title=f'{selected_country} Average Temperature Decadal Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title=f'{selected_country} Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     st.plotly_chart(fig)
 elif page == "City-wise Heatmap":
     st.subheader('City-wise Temperature Heatmap')
@@ -70,8 +76,8 @@ elif page == "City-wise Heatmap":
     selected_city = st.sidebar.selectbox('Select a city', cities)
     filtered_data = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1]) & (data['Country'] == selected_country) & (data['City'] == selected_city)]
     if heatmap_type == 'Yearly':
-        fig = create_heatmap(filtered_data, index='Month', columns='Year', title=f'{selected_city}, {selected_country} Average Temperature Yearly Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Year', title=f'{selected_city}, {selected_country} Average Temperature Yearly Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     else:
         filtered_data['Decade'] = (filtered_data['Year'] // 10) * 10
-        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title=f'{selected_city}, {selected_country} Average Temperature Decadal Heatmap')
+        fig = create_heatmap(filtered_data, index='Month', columns='Decade', title=f'{selected_city}, {selected_country} Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp)
     st.plotly_chart(fig)
