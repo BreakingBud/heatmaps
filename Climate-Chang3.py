@@ -26,7 +26,7 @@ year_range = st.sidebar.slider('Select year range', int(data['Year'].min()), int
 heatmap_type = st.sidebar.radio('Select heatmap type', ['Yearly', 'Decadal'])
 
 # Color palette selection
-color_palette = st.sidebar.radio('Select color palette', ['RdBu', 'Viridis'])
+color_palette = st.sidebar.radio('Select color palette', ['Normal', 'Colour blind'])
 
 def create_heatmap(data, index, columns, title, zmin, zmax, colorscale):
     heatmap_data = data.pivot_table(index=index, columns=columns, values='AverageTemperature', aggfunc='mean')
