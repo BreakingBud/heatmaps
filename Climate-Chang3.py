@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Load the data
-data_url = "C:\\Users\\goela\\OneDrive\\Desktop\\New folder\\GlobalLandTemperaturesByMajorCity.csv"  # Update this to your file path
+data_url = "GlobalLandTemperaturesByMajorCity.csv"  # Update this to your file path
 data = pd.read_csv(data_url)
 
 # Filter out NaN values
