@@ -19,7 +19,7 @@ st.title('Temperature Analysis')
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Select a page", ["Global Heatmap", "Country-wise Heatmap", "City-wise Heatmap"])
+page = st.sidebar.selectbox("Select a page", ["Global Heatmap", "Country-wise Heatmap", "City-wise Heatmap", "Compare Cities"])
 
 # Year range selection
 year_range = st.sidebar.slider('Select year range', int(data['Year'].min()), int(data['Year'].max()), (2000, 2010))
@@ -84,3 +84,35 @@ elif page == "City-wise Heatmap":
         filtered_data['Decade'] = (filtered_data['Year'] // 10) * 10
         fig = create_heatmap(filtered_data, index='Month', columns='Decade', title=f'{selected_city}, {selected_country} Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp, colorscale=color_palette)
     st.plotly_chart(fig)
+elif page == "Compare Cities":
+    st.subheader('Compare Cities Temperature Heatmap')
+    countries = data['Country'].unique()
+    selected_country_1 = st.sidebar.selectbox('Select the first country', countries, key='country_1')
+    cities_1 = data[data['Country'] == selected_country_1]['City'].unique()
+    selected_city_1 = st.sidebar.selectbox('Select the first city', cities_1, key='city_1')
+    
+    selected_country_2 = st.sidebar.selectbox('Select the second country', countries, key='country_2')
+    cities_2 = data[data['Country'] == selected_country_2]['City'].unique()
+    selected_city_2 = st.sidebar.selectbox('Select the second city', cities_2, key='city_2')
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write(f"Heatmap for {selected_city_1}, {selected_country_1}")
+        filtered_data_1 = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1]) & (data['Country'] == selected_country_1) & (data['City'] == selected_city_1)]
+        if heatmap_type == 'Yearly':
+            fig1 = create_heatmap(filtered_data_1, index='Month', columns='Year', title=f'{selected_city_1}, {selected_country_1} Average Temperature Yearly Heatmap', zmin=global_min_temp, zmax=global_max_temp, colorscale=color_palette)
+        else:
+            filtered_data_1['Decade'] = (filtered_data_1['Year'] // 10) * 10
+            fig1 = create_heatmap(filtered_data_1, index='Month', columns='Decade', title=f'{selected_city_1}, {selected_country_1} Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp, colorscale=color_palette)
+        st.plotly_chart(fig1)
+
+    with col2:
+        st.write(f"Heatmap for {selected_city_2}, {selected_country_2}")
+        filtered_data_2 = data[(data['Year'] >= year_range[0]) & (data['Year'] <= year_range[1]) & (data['Country'] == selected_country_2) & (data['City'] == selected_city_2)]
+        if heatmap_type == 'Yearly':
+            fig2 = create_heatmap(filtered_data_2, index='Month', columns='Year', title=f'{selected_city_2}, {selected_country_2} Average Temperature Yearly Heatmap', zmin=global_min_temp, zmax=global_max_temp, colorscale=color_palette)
+        else:
+            filtered_data_2['Decade'] = (filtered_data_2['Year'] // 10) * 10
+            fig2 = create_heatmap(filtered_data_2, index='Month', columns='Decade', title=f'{selected_city_2}, {selected_country_2} Average Temperature Decadal Heatmap', zmin=global_min_temp, zmax=global_max_temp, colorscale=color_palette)
+        st.plotly_chart(fig2)
